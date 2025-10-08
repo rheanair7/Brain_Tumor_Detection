@@ -134,7 +134,7 @@ tensorboard --logdir logs
 
 ---
 
-## 📈 Results
+## Results
 
 | Metric | Validation | Test |
 |--------|-------------|------|
@@ -146,7 +146,7 @@ tensorboard --logdir logs
 
 ---
 
-## 💾 Model Checkpoints
+## Model Checkpoints
 
 All trained models are saved under `/models/`.
 
