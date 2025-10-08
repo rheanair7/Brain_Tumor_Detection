@@ -1,115 +1,213 @@
-# Brain-Tumor-Detector
-Building a detection model using a convolutional neural network in Tensorflow & Keras.<br>
-Used a brain MRI images data founded on Kaggle. You can find it [here](https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection).<br>
+#  Brain Tumor Detection using CNNs and Data Augmentation
 
-**About the data:**<br>
-The dataset contains 2 folders: yes and no which contains 253 Brain MRI Images. The folder yes contains 155 Brain MRI Images that are tumorous and the folder no contains 98 Brain MRI Images that are non-tumorous.
+A complete deep learning pipeline for classifying MRI brain scans as **tumorous** or **non-tumorous**, built with **TensorFlow** and **Keras**.  
+This project features a custom **Convolutional Neural Network (CNN)** architecture and a robust **data augmentation** process designed to improve accuracy and reduce overfitting when working with limited, imbalanced datasets.
 
-# Getting Started
+> Dataset Source: [Brain MRI Images for Brain Tumor Detection (Kaggle)](https://www.kaggle.com/navoneel/brain-mri-images-for-brain-tumor-detection)
 
-**Note:** sometimes viewing IPython notebooks using GitHub viewer doesn't work as expected, so you can always view them using [nbviewer](https://nbviewer.jupyter.org/).
+---
 
-## Data Augmentation:
+##  Repository Overview
 
-**Why did I use data augmentation?**
+This repository includes:
+- Jupyter notebooks for data augmentation and CNN model training.
+- Original and augmented MRI image datasets.
+- Trained model checkpoints.
+- TensorBoard logs for training and validation performance tracking.
 
-Since this is a small dataset, There wasn't enough examples to train the neural network. Also, data augmentation was useful in taclking the data imbalance issue in the data.<br>
-
-Further explanations are found in the Data Augmentation notebook.
-
-Before data augmentation, the dataset consisted of:<br>
-155 positive and 98 negative examples, resulting in 253 example images.
-
-After data augmentation, now the dataset consists of:<br>
-1085 positive and 980 examples, resulting in 2065 example images.
-
-**Note:** these 2065 examples contains also the 253 original images. They are found in folder named 'augmented data'.
-
-## Data Preprocessing
-
-For every image, the following preprocessing steps were applied:
-
-1. Crop the part of the image that contains only the brain (which is the most important part of the image).
-2. Resize the image to have a shape of (240, 240, 3)=(image_width, image_height, number of channels): because images in the dataset come in different sizes. So, all images should have the same shape to feed it as an input to the neural network.
-3. Apply normalization: to scale pixel values to the range 0-1.
-
-## Data Split:
-
-The data was split in the following way:
-1. 70% of the data for training.
-2. 15% of the data for validation.
-3. 15% of the data for testing.
-
-# Neural Network Architecture
-
-This is the architecture that I've built:
-
-![Neural Network Architecture](convnet_architecture.jpg)
-
-**Understanding the architecture:**<br>
-Each input x (image) has a shape of (240, 240, 3) and is fed into the neural network. And, it goes through the following layers:<br>
-
-1. A Zero Padding layer with a pool size of (2, 2).
-2. A convolutional layer with 32 filters, with a filter size of (7, 7) and a stride equal to 1.
-3. A batch normalization layer to normalize pixel values to speed up computation.
-4. A ReLU activation layer.
-5. A Max Pooling layer with f=4 and s=4.
-6. A Max Pooling layer with f=4 and s=4, same as before.
-7. A flatten layer in order to flatten the 3-dimensional matrix into a one-dimensional vector.
-8. A Dense (output unit) fully connected layer with one neuron with a sigmoid activation (since this is a binary classification task).
-
-**Why this architecture?**<br>
-
-Firstly, I applied transfer learning using a ResNet50 and vgg-16, but these models were too complex to the data size and were overfitting. Of course, you may get good results applying transfer learning with these models using data augmentation. But, I'm using training on a computer with 6th generation Intel i7 CPU and 8 GB memory. So, I had to take into consideration computational complexity and memory limitations.<br>
-
-So why not try a simpler architecture and train it from scratch. And it worked :)
-
-# Training the model
-The model was trained for 24 epochs and these are the loss & accuracy plots:
-
-
-![Loss plot](Loss.PNG)
-
-
-![Accuracy plot](Accuracy.PNG)
-
-The best validation accuracy was achieved on the 23rd iteration.
-
-# Results
-
-Now, the best model (the one with the best validation accuracy) detects brain tumor with:<br>
-
-**88.7%** accuracy on the **test set**.<br>
-**0.88** f1 score on the **test set**.<br>
-These resutls are very good considering that the data is balanced.
-
-**Performance table of the best model:**
-
-| <!-- -->  | Validation set | Test set |
-| --------- | -------------- | -------- |
-| Accuracy  | 91%            | 89%      |
-| F1 score  | 0.91           | 0.88     |
-
-
-# Final Notes
-
-What's in the files?
-
-1. The code in the IPython notebooks.
-2. The weights for all the models. The best model is named as 'cnn-parameters-improvement-23-0.91.model'.
-3. The models are stored as *.model* files. They can be restored as follows:
-
-
+### Folder Structure
 ```
+.
+├── Brain Tumor Detection.ipynb        # CNN model training and evaluation
+├── Data Augmentation.ipynb            # Custom augmentation workflow
+├── augmented data/                    # Generated augmented images
+├── yes/                               # Original tumorous MRI images
+├── no/                                # Original non-tumorous MRI images
+├── logs/                              # TensorBoard logs
+├── models/                            # Saved model checkpoints
+└── README.md
+```
+
+---
+
+## Getting Started
+### Installation
+
+Create a virtual environment and install the required dependencies:
+
+```bash
+python -m venv .venv
+# Activate environment
+# Windows PowerShell
+. .venv/Scripts/Activate.ps1
+# macOS/Linux
+source .venv/bin/activate
+
+pip install tensorflow keras numpy opencv-python matplotlib scikit-learn pillow
+```
+
+---
+
+## Dataset Description
+
+The dataset consists of MRI scans categorized into:
+- `yes/`: Tumorous brain images  
+- `no/`: Non-tumorous brain images  
+
+**Original dataset:**
+- 155 positive (tumorous) images  
+- 98 negative (non-tumorous) images  
+- **Total:** 253 images  
+
+**After data augmentation:**
+- 1085 positive + 980 negative = **2065 total images**  
+
+All augmented images (including the original 253) are stored in the `augmented data/` directory.
+
+---
+
+##  Data Augmentation
+
+### Why use augmentation?
+The dataset was small and imbalanced, making augmentation crucial to improve model generalization and avoid overfitting.
+
+### Techniques used:
+- Random rotation, flipping, and zoom  
+- Brightness and contrast adjustments  
+- Scaling and shifting  
+- Normalization (pixel values scaled between 0–1)
+
+You can regenerate or modify the augmented data by running:
+```
+Data Augmentation.ipynb
+```
+
+---
+
+## Preprocessing Steps
+
+For every image:
+1. **Crop** to isolate the brain region.  
+2. **Resize** to a uniform shape `(240, 240, 3)`.  
+3. **Normalize** pixel values to `[0, 1]`.  
+
+### Data split:
+- 70% → Training  
+- 15% → Validation  
+- 15% → Testing  
+
+---
+
+## Model Architecture
+
+A simple yet effective CNN architecture designed for small medical image datasets.
+
+**Architecture Overview:**
+1. ZeroPadding2D  
+2. Conv2D (32 filters, kernel size 7×7, stride 1)  
+3. BatchNormalization  
+4. ReLU Activation  
+5. MaxPooling (4×4)  
+6. Flatten  
+7. Dense output layer with sigmoid activation  
+
+### Why not transfer learning?
+ResNet-50 and VGG-16 were tested initially but caused overfitting due to the small dataset size and limited hardware (Intel i7, 8 GB RAM).  
+A smaller custom CNN was implemented to balance accuracy and computational efficiency.
+
+---
+
+## Model Training
+
+- Trained for 24 epochs using early stopping to avoid overfitting.  
+- Used TensorBoard to visualize accuracy and loss.  
+- Best validation accuracy achieved near **epoch 23**.
+
+### Launch TensorBoard
+```bash
+tensorboard --logdir logs
+```
+
+### Example Training Curves
+![Loss plot](Loss.png)
+![Accuracy plot](Accuracy.png)
+
+---
+
+## 📈 Results
+
+| Metric | Validation | Test |
+|--------|-------------|------|
+| **Accuracy** | 0.91 | 0.89 |
+| **F1 Score** | 0.91 | 0.88 |
+
+> These results reflect balanced data performance after augmentation.  
+> Slight variation is expected between runs due to random initialization.
+
+---
+
+## 💾 Model Checkpoints
+
+All trained models are saved under `/models/`.
+
+Example path:
+```
+models/cnn-parameters-improvement-03-0.92.model/
+```
+
+Load a saved model in Python:
+
+```python
 from tensorflow.keras.models import load_model
-best_model = load_model(filepath='models/cnn-parameters-improvement-23-0.91.model')
+
+model = load_model('models/cnn-parameters-improvement-03-0.92.model')
 ```
 
-4. The original data in the folders named 'yes' and 'no'. And, the augmented data in the folder named 'augmented data'.
+---
 
+## 🧪 Inference
 
-Contributes are welcome!
-<br>Thank you!
+Predict tumor presence from a preprocessed image:
 
+```python
+import cv2
+import numpy as np
 
+img = cv2.imread('test.jpg')
+img = cv2.resize(img, (240, 240)) / 255.0
+img = np.expand_dims(img, axis=0)
 
+pred = model.predict(img)[0][0]
+print("Tumor detected" if pred > 0.5 else "No tumor")
+```
+
+---
+
+## 🧾 Notes
+
+Large files (augmented data, models, logs) may cause slow cloning.  
+You can remove them or use **Git LFS** for better performance:
+
+```bash
+git lfs install
+git lfs track "*.jpg" "*.png" "*.tfevents" "*.pb"
+git add .gitattributes
+git commit -m "Track large assets with Git LFS"
+```
+
+Example `.gitignore` entries:
+
+```
+augmented data/
+logs/
+models/
+*.tfevents
+*.pb
+*.h5
+*.ckpt*
+*.zip
+*.tar.gz
+.DS_Store
+```
+
+---
