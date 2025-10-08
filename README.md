@@ -165,7 +165,7 @@ model = load_model('models/cnn-parameters-improvement-03-0.92.model')
 
 ---
 
-## 🧪 Inference
+##  Inference
 
 Predict tumor presence from a preprocessed image:
 
@@ -183,7 +183,7 @@ print("Tumor detected" if pred > 0.5 else "No tumor")
 
 ---
 
-## 🧾 Notes
+## Notes
 
 Large files (augmented data, models, logs) may cause slow cloning.  
 You can remove them or use **Git LFS** for better performance:
